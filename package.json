@@ -1,7 +1,7 @@
 {
   "name": "ember-cli-dirty-confirm",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "0.0.1",
+  "description": "A dirty model route transition aborter",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -11,12 +11,19 @@
     "build": "ember build",
     "test": "ember test"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kellyselden/ember-cli-dirty-confirm.git"
+  },
   "engines": {
     "node": ">= 0.10.0"
   },
-  "author": "",
+  "author": "Kelly Selden",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kellyselden/ember-cli-dirty-confirm/issues"
+  },
+  "homepage": "https://github.com/kellyselden/ember-cli-dirty-confirm",
   "devDependencies": {
     "broccoli-asset-rev": "^2.0.0",
     "broccoli-ember-hbs-template-compiler": "^1.6.1",
@@ -35,6 +42,9 @@
     "glob": "^4.0.5"
   },
   "keywords": [
+    "ember",
+    "ember.js",
+    "ember-cli",
     "ember-addon"
   ],
   "ember-addon": {
