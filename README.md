@@ -1,25 +1,15 @@
-# Ember-cli-dirty-confirm
+#ember-cli-dirty-confirm
 
-This README outlines the details of collaborating on this Ember addon.
+A dirty model route transition aborter. It will show a confirm dialog giving you a chance to cancel a route change. If you agree, it will rollback your model.
 
-## Installation
+##Usage
 
-* `git clone` this repository
-* `npm install`
-* `bower install`
+`npm install --save-dev ember-cli-dirty-confirm`
+```javascript
+import DirtyConfirmRouteMixin from 'ember-cli-dirty-confirm/mixins/dirty-confirm-route';
 
-## Running
-
-* `ember server`
-* Visit your app at http://localhost:4200.
-
-## Running Tests
-
-* `ember test`
-* `ember test --server`
-
-## Building
-
-* `ember build`
-
-For more information on using ember-cli, visit [http://www.ember-cli.com/](http://www.ember-cli.com/).
+export default Ember.Route.extend(DirtyConfirmRouteMixin, {
+  //optional, the default message is "Leaving this page will lose your changes. Are you sure?"
+  dirtyMessage: 'Please don\'t go!'
+});
+```
