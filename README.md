@@ -10,6 +10,8 @@ import DirtyConfirmRouteMixin from 'ember-cli-dirty-confirm/mixins/dirty-confirm
 
 export default Ember.Route.extend(DirtyConfirmRouteMixin, {
   //optional, the default message is "Leaving this page will lose your changes. Are you sure?"
-  dirtyMessage: 'Please don\'t go!'
+  dirtyMessage: 'Please don\'t go!',
+  //optional, temporarily disable the message
+  isDirtyConfirmEnabled: false
 });
 ```
