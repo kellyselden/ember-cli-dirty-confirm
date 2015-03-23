@@ -21,7 +21,10 @@ export default Ember.Mixin.create({
   isDirtyConfirmEnabled: true,
   actions: {
     willTransition: function(transition) {
-      if (!this.get('isDirtyConfirmEnabled')) return;
+      if (!this.get('isDirtyConfirmEnabled')) {
+        return;
+      }
+
       var model = this.get('dirtyModel') || this.currentModel;
       var dirtyMessage = this.get('dirtyMessage');
       if (Object.prototype.toString.call(model) === '[object Array]') {

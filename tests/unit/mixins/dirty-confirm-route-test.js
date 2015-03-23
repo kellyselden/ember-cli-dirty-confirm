@@ -1,12 +1,15 @@
 import Ember from 'ember';
-import DirtyConfirmRouteMixin from '../../../mixins/dirty-confirm-route';
+import DirtyConfirmRouteMixin from 'ember-cli-dirty-confirm/mixins/dirty-confirm-route';
 import { module, test } from 'qunit';
 
-module('DirtyConfirmRouteMixin');
+var mixin;
 
-// Replace this with your real tests.
-test('it works', function(assert) {
-  var DirtyConfirmRouteObject = Ember.Object.extend(DirtyConfirmRouteMixin);
-  var subject = DirtyConfirmRouteObject.create();
-  assert.ok(subject);
+module('DirtyConfirmRouteMixin', {
+  beforeEach: function() {
+    mixin = Ember.Object.extend(DirtyConfirmRouteMixin).create();
+  }
+});
+
+test('isDirtyConfirmEnabled enabled by default', function(assert) {
+  assert.ok(mixin.isDirtyConfirmEnabled);
 });
