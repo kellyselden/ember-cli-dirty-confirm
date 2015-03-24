@@ -1,21 +1,9 @@
 import Ember from 'ember';
+import checkModelForDirty from 'ember-cli-dirty-confirm/utils/check-model-for-dirty';
 
 var ABORT = 0;
 var ROLLBACK = 1;
 var BUBBLE = 2;
-
-function checkModelForDirty(model, dirtyMessage, transition, continueRollingBack) {
-  if (model.get('isDirty') && !model.get('isSaving')) {
-    if (!continueRollingBack &&
-        !confirm(dirtyMessage || 'Leaving this page will lose your changes. Are you sure?')) {
-      transition.abort();
-      return ABORT;
-    }
-    model.rollback();
-    return ROLLBACK;
-  }
-  return BUBBLE;
-}
 
 export default Ember.Mixin.create({
   isDirtyConfirmEnabled: true,
