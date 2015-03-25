@@ -2,6 +2,10 @@ import Ember from 'ember';
 import checkModelForDirty from 'ember-cli-dirty-confirm/utils/check-model-for-dirty';
 import { module, test } from 'qunit';
 
+var ABORT = 0;
+var ROLLBACK = 1;
+var BUBBLE = 2;
+
 var confirm = window.confirm;
 
 module('checkModelForDirty', {
@@ -9,10 +13,6 @@ module('checkModelForDirty', {
     window.confirm = confirm;
   }
 });
-
-var ABORT = 0;
-var ROLLBACK = 1;
-var BUBBLE = 2;
 
 test('!isDirty and !isSaving, BUBBLE', function(assert) {
   var model = Ember.Object.create({
