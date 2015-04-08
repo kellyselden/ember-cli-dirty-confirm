@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/kellyselden/ember-cli-dirty-confirm.svg)](https://travis-ci.org/kellyselden/ember-cli-dirty-confirm)
 [![devDependency Status](https://david-dm.org/kellyselden/ember-cli-dirty-confirm/dev-status.svg)](https://david-dm.org/kellyselden/ember-cli-dirty-confirm#info=devDependencies)
+[![Code Climate](https://codeclimate.com/github/kellyselden/ember-cli-dirty-confirm/badges/gpa.svg)](https://codeclimate.com/github/kellyselden/ember-cli-dirty-confirm)
+[![Coverage Status](https://coveralls.io/repos/kellyselden/ember-cli-dirty-confirm/badge.svg)](https://coveralls.io/r/kellyselden/ember-cli-dirty-confirm)
 
 A dirty model route transition aborter. It will show a confirm dialog giving you a chance to cancel a route change. If you agree, it will rollback your model.
 
