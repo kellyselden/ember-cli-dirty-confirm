@@ -8,14 +8,14 @@ A dirty model route transition aborter. It will show a confirm dialog giving you
 
 ##Usage
 
-`npm install --save-dev ember-cli-dirty-confirm`
+`ember install ember-cli-dirty-confirm`
 ```javascript
 import DirtyConfirmRouteMixin from 'ember-cli-dirty-confirm/mixins/dirty-confirm-route';
 
 export default Ember.Route.extend(DirtyConfirmRouteMixin, {
-  //optional, the default message is "Leaving this page will lose your changes. Are you sure?"
-  dirtyMessage: 'Please don\'t go!',
-  //optional, temporarily disable the message
+  // optional, the default message is "Leaving this page will lose your changes. Are you sure?"
+  dirtyMessage: "Please don't go!",
+  // optional, temporarily disable the message
   isDirtyConfirmEnabled: false
 });
 ```
