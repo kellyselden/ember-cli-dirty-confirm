@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import checkModelForDirty from 'ember-cli-dirty-confirm/utils/check-model-for-dirty';
+import checkModelForDirty from '../utils/check-model-for-dirty';
 
 var ABORT = 0;
 var ROLLBACK = 1;
