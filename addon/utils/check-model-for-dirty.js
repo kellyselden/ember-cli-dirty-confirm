@@ -7,7 +7,10 @@ export default function checkModelForDirty(model, dirtyMessage, transition, cont
     // continueRollingBack if an earlier model in a collection was rolled back
     if (!continueRollingBack &&
         !confirm(dirtyMessage || 'Leaving this page will lose your changes. Are you sure?')) {
-      transition.abort();
+      if (transition) {
+        transition.abort();
+      }
+
       return ABORT;
     }
     model.rollback();
