@@ -14,7 +14,9 @@ export default function checkModelForDirty(model, dirtyMessage, transition, cont
       return ABORT;
     }
     model.rollback();
+
     return ROLLBACK;
   }
+
   return BUBBLE;
 }

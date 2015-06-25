@@ -10,6 +10,9 @@ export default Ember.Mixin.create({
   isDirtyConfirmEnabled: true,
   actions: {
     willTransition: function(transition) {
+      this.send('checkModelForDirty', transition);
+    },
+    checkModelForDirty: function(transition) {
       if (!this.get('isDirtyConfirmEnabled')) {
         return;
       }
