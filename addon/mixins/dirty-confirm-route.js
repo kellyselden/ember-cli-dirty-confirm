@@ -9,7 +9,7 @@ export default Ember.Mixin.create({
   checkModelForDirty: checkModelForDirty,
   isDirtyConfirmEnabled: true,
 
-  checkDirtyModel: function(transition) {
+  checkDirtyConfirm: function(transition) {
     if (!this.get('isDirtyConfirmEnabled')) {
       return;
     }
@@ -38,7 +38,7 @@ export default Ember.Mixin.create({
 
   actions: {
     willTransition: function(transition) {
-      return this.checkDirtyModel(transition);
+      return this.checkDirtyConfirm(transition);
     }
   }
 });

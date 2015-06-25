@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-dirty-confirm",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A dirty model route transition aborter",
   "directories": {
     "doc": "doc",
