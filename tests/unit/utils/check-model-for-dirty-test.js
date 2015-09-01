@@ -20,7 +20,7 @@ test('!isDirty and !isSaving, BUBBLE', function(assert) {
     isSaving: false
   });
 
-  var result = checkModelForDirty(model);
+  var result = checkModelForDirty(model, []);
 
   assert.strictEqual(result, BUBBLE);
 });
@@ -31,7 +31,7 @@ test('!isDirty and isSaving, BUBBLE', function(assert) {
     isSaving: true
   });
 
-  var result = checkModelForDirty(model);
+  var result = checkModelForDirty(model, []);
 
   assert.strictEqual(result, BUBBLE);
 });
@@ -42,35 +42,35 @@ test('isDirty and isSaving, BUBBLE', function(assert) {
     isSaving: true
   });
 
-  var result = checkModelForDirty(model);
+  var result = checkModelForDirty(model, []);
 
   assert.strictEqual(result, BUBBLE);
 });
 
 test('continueRollingBack if earlier model in collection was rolled back, ROLLBACK', function(assert) {
-  var isRolledBack;
+  var wasRollbackCalled;
   var model = Ember.Object.create({
     isDirty: true,
     isSaving: false,
     rollback: function() {
-      isRolledBack = true;
+      wasRollbackCalled = true;
     }
   });
   var continueRollingBack = true;
 
-  var result = checkModelForDirty(model, null, null, continueRollingBack);
+  var result = checkModelForDirty(model, [], null, null, continueRollingBack);
 
-  assert.ok(isRolledBack);
+  assert.ok(wasRollbackCalled);
   assert.strictEqual(result, ROLLBACK);
 });
 
 test('confirm was confirmed, ROLLBACK', function(assert) {
-  var isRolledBack;
+  var wasRollbackCalled;
   var model = Ember.Object.create({
     isDirty: true,
     isSaving: false,
     rollback: function() {
-      isRolledBack = true;
+      wasRollbackCalled = true;
     }
   });
   var continueRollingBack = false;
@@ -78,9 +78,9 @@ test('confirm was confirmed, ROLLBACK', function(assert) {
     return true;
   };
 
-  var result = checkModelForDirty(model, null, null, continueRollingBack);
+  var result = checkModelForDirty(model, [], null, null, continueRollingBack);
 
-  assert.ok(isRolledBack);
+  assert.ok(wasRollbackCalled);
   assert.strictEqual(result, ROLLBACK);
 });
 
@@ -97,31 +97,13 @@ test('confirm was canceled, ABORT', function(assert) {
   });
   var continueRollingBack = false;
 
-  var result = checkModelForDirty(model, null, transition, continueRollingBack);
+  var result = checkModelForDirty(model, [], null, transition, continueRollingBack);
 
   assert.ok(isAborted);
   assert.strictEqual(result, ABORT);
 });
 
-test('dirtyMessage is undefined, use default', function(assert) {
-  var model = Ember.Object.create({
-    isDirty: true,
-    isSaving: false,
-    rollback: function() { }
-  });
-  var continueRollingBack = false;
-  var message;
-  window.confirm = function(m) {
-    message = m;
-    return true;
-  };
-
-  checkModelForDirty(model, null, null, continueRollingBack);
-
-  assert.strictEqual(message, 'Leaving this page will lose your changes. Are you sure?');
-});
-
-test('dirtyMessage is defined, use dirtyMessage', function(assert) {
+test('model is dirty, show dirtyMessage', function(assert) {
   var model = Ember.Object.create({
     isDirty: true,
     isSaving: false,
@@ -135,7 +117,77 @@ test('dirtyMessage is defined, use dirtyMessage', function(assert) {
   };
   var dirtyMessage = 'this is a dirty message';
 
-  checkModelForDirty(model, dirtyMessage, null, continueRollingBack);
+  checkModelForDirty(model, [], dirtyMessage, null, continueRollingBack);
 
   assert.strictEqual(message, dirtyMessage);
+});
+
+test('relationship is dirty, model is not', function(assert) {
+  var wasRollbackCalledOnModel, wasRollbackCalledOnRelationship;
+  var model = Ember.Object.create({
+    rollback: function() {
+      wasRollbackCalledOnModel = true;
+    },
+    test: Ember.Object.create({
+      isDirty: true,
+      rollback: function() {
+        wasRollbackCalledOnRelationship = true;
+      }
+    })
+  });
+  window.confirm = function() {
+    return true;
+  };
+
+  checkModelForDirty(model, ['test']);
+
+  assert.ok(!wasRollbackCalledOnModel);
+  assert.ok(wasRollbackCalledOnRelationship);
+});
+
+test('both model and relationship are dirty', function(assert) {
+  var wasRollbackCalledOnModel, wasRollbackCalledOnRelationship;
+  var model = Ember.Object.create({
+    isDirty: true,
+    rollback: function() {
+      wasRollbackCalledOnModel = true;
+    },
+    test: Ember.Object.create({
+      isDirty: true,
+      rollback: function() {
+        wasRollbackCalledOnRelationship = true;
+      }
+    })
+  });
+  window.confirm = function() {
+    return true;
+  };
+
+  checkModelForDirty(model, ['test']);
+
+  assert.ok(wasRollbackCalledOnModel);
+  assert.ok(wasRollbackCalledOnRelationship);
+});
+
+test('model is dirty, relationship is not', function(assert) {
+  var wasRollbackCalledOnModel, wasRollbackCalledOnRelationship;
+  var model = Ember.Object.create({
+    isDirty: true,
+    rollback: function() {
+      wasRollbackCalledOnModel = true;
+    },
+    test: Ember.Object.create({
+      rollback: function() {
+        wasRollbackCalledOnRelationship = true;
+      }
+    })
+  });
+  window.confirm = function() {
+    return true;
+  };
+
+  checkModelForDirty(model, ['test']);
+
+  assert.ok(wasRollbackCalledOnModel);
+  assert.ok(!wasRollbackCalledOnRelationship);
 });
