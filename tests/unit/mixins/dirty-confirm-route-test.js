@@ -13,6 +13,7 @@ module('DirtyConfirmRouteMixin', {
   beforeEach: function() {
     route = Ember.Route.createWithMixins(DirtyConfirmRouteMixin, {
       currentModel: Ember.Object.create(),
+      dirtyRelationships: ['test'],
       dirtyMessage: 'this is a dirty message'
     });
   }
@@ -44,8 +45,9 @@ test('willTransition calls checkModelForDirty', function(assert) {
   var result = route.send('willTransition', transition);
 
   assert.equal(args[0], route.currentModel);
-  assert.equal(args[1], route.dirtyMessage);
-  assert.equal(args[2], transition);
+  assert.equal(args[1], route.dirtyRelationships);
+  assert.equal(args[2], route.dirtyMessage);
+  assert.equal(args[3], transition);
   assert.ok(!result);
 });
 
@@ -106,9 +108,10 @@ test('model is non-empty array, checkModelForDirty is called', function(assert) 
   var result = route.send('willTransition', transition);
 
   assert.equal(args[0], route.dirtyModel[0]);
-  assert.equal(args[1], route.dirtyMessage);
-  assert.equal(args[2], transition);
-  assert.ok(!args[3]);
+  assert.equal(args[1], route.dirtyRelationships);
+  assert.equal(args[2], route.dirtyMessage);
+  assert.equal(args[3], transition);
+  assert.ok(!args[4]);
   assert.ok(result);
 });
 
@@ -139,6 +142,25 @@ test('model is array and checkModelForDirty returns ROLLBACK, checkModelForDirty
   var result = route.send('willTransition');
 
   assert.strictEqual(count, 2);
-  assert.ok(args[3]);
+  assert.ok(args[4]);
   assert.ok(result);
+});
+
+test('uses default dirtyMessage', function(assert) {
+  var expected = 'Leaving this page will lose your changes. Are you sure?';
+
+  route = Ember.Route.createWithMixins(DirtyConfirmRouteMixin, {
+    currentModel: Ember.Object.create()
+  });
+
+  assert.strictEqual(route.get('dirtyMessage'), expected);
+
+  var args;
+  route.checkModelForDirty = function() {
+    args = arguments;
+  };
+
+  route.send('willTransition');
+
+  assert.strictEqual(args[2], expected);
 });

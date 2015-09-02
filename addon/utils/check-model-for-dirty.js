@@ -2,18 +2,31 @@ var ABORT = 0;
 var ROLLBACK = 1;
 var BUBBLE = 2;
 
-export default function checkModelForDirty(model, dirtyMessage, transition, continueRollingBack) {
-  if (model.get('isDirty') && !model.get('isSaving')) {
+function addDirtyModel(dirtyModels, model) {
+  if (model.get('isDirty')) {
+    dirtyModels.push(model);
+  }
+}
+
+function getDirtyModels(model, dirtyRelationships) {
+  var dirtyModels = [];
+  addDirtyModel(dirtyModels, model);
+  dirtyRelationships.forEach(prop => addDirtyModel(dirtyModels, model.get(prop)));
+  return dirtyModels;
+}
+
+export default function checkModelForDirty(model, dirtyRelationships, dirtyMessage, transition, continueRollingBack) {
+  var dirtyModels = getDirtyModels(model, dirtyRelationships);
+  if (dirtyModels.length && !model.get('isSaving')) {
     // continueRollingBack if an earlier model in a collection was rolled back
-    if (!continueRollingBack &&
-        !confirm(dirtyMessage || 'Leaving this page will lose your changes. Are you sure?')) {
+    if (!continueRollingBack && !confirm(dirtyMessage)) {
       if (transition) {
         transition.abort();
       }
 
       return ABORT;
     }
-    model.rollback();
+    dirtyModels.forEach(dirtyModel => dirtyModel.rollback());
 
     return ROLLBACK;
   }
