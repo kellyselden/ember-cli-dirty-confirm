@@ -5,7 +5,10 @@ var ABORT = 0;
 var ROLLBACK = 1;
 var BUBBLE = 2;
 
-const { computed: { readOnly } } = Ember;
+const {
+  computed: { readOnly },
+  isArray
+} = Ember;
 
 export default Ember.Mixin.create({
   checkModelForDirty: checkModelForDirty,
@@ -28,7 +31,7 @@ export default Ember.Mixin.create({
     var dirtyRelationships = this.get('dirtyRelationships');
     var dirtyMessage = this.get('dirtyMessage');
 
-    if (Object.prototype.toString.call(model) === '[object Array]') {
+    if (isArray(model)) {
       var continueRollingBack;
       for (var i = 0; i < model.length; i++) {
         switch (this.checkModelForDirty(model[i], dirtyRelationships, dirtyMessage, transition, continueRollingBack)) {
