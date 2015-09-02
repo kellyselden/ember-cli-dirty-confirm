@@ -6,8 +6,9 @@ var ROLLBACK = 1;
 var BUBBLE = 2;
 
 const {
-  computed: { readOnly },
-  isArray
+  computed: { oneWay },
+  isArray,
+  A
 } = Ember;
 
 export default Ember.Mixin.create({
@@ -16,7 +17,7 @@ export default Ember.Mixin.create({
   isDirtyConfirmEnabled: true,
 
   // dirtyModel can be used for a property that isn't the route's main model
-  dirtyModel: readOnly('currentModel'),
+  dirtyModel: oneWay('currentModel'),
 
   dirtyRelationships: [],
 
@@ -32,9 +33,12 @@ export default Ember.Mixin.create({
     var dirtyMessage = this.get('dirtyMessage');
 
     if (isArray(model)) {
+      if (Array.isArray(model)) {
+        model = new A(model);
+      }
       var continueRollingBack;
       for (var i = 0; i < model.length; i++) {
-        switch (this.checkModelForDirty(model[i], dirtyRelationships, dirtyMessage, transition, continueRollingBack)) {
+        switch (this.checkModelForDirty(model.objectAt(i), dirtyRelationships, dirtyMessage, transition, continueRollingBack)) {
           case ABORT: return;
           // if one model was chosen to rollback, roll them all back
           case ROLLBACK: continueRollingBack = true;

@@ -73,7 +73,7 @@ test('checkModelForDirty returns BUBBLE, willTransition returns true', function(
 
 test('dirtyModel overrides currentModel', function(assert) {
   var model;
-  route.dirtyModel = Ember.Object.create();
+  route.set('dirtyModel', Ember.Object.create());
   route.checkModelForDirty = function() {
     model = arguments[0];
   };
@@ -86,7 +86,7 @@ test('dirtyModel overrides currentModel', function(assert) {
 });
 
 test('model is empty array, willTransition returns true', function(assert) {
-  route.dirtyModel = [];
+  route.set('dirtyModel', []);
   var called;
   route.checkModelForDirty = function() {
     called = true;
@@ -98,8 +98,8 @@ test('model is empty array, willTransition returns true', function(assert) {
   assert.ok(result);
 });
 
-test('model is non-empty array, checkModelForDirty is called', function(assert) {
-  route.dirtyModel = [Ember.Object.create()];
+test('model is non-empty native array, checkModelForDirty is called', function(assert) {
+  route.set('dirtyModel', [Ember.Object.create({ name: 'name test' })]);
   var args;
   route.checkModelForDirty = function() {
     args = arguments;
@@ -107,16 +107,33 @@ test('model is non-empty array, checkModelForDirty is called', function(assert) 
 
   var result = route.send('willTransition', transition);
 
-  assert.equal(args[0], route.dirtyModel[0]);
-  assert.equal(args[1], route.dirtyRelationships);
-  assert.equal(args[2], route.dirtyMessage);
+  assert.equal(args[0].get('name'), 'name test');
+  assert.equal(args[1], route.get('dirtyRelationships'));
+  assert.equal(args[2], route.get('dirtyMessage'));
+  assert.equal(args[3], transition);
+  assert.ok(!args[4]);
+  assert.ok(result);
+});
+
+test('model is non-empty ember array, checkModelForDirty is called', function(assert) {
+  route.set('dirtyModel', Ember.A([Ember.Object.create({ name: 'name test' })]));
+  var args;
+  route.checkModelForDirty = function() {
+    args = arguments;
+  };
+
+  var result = route.send('willTransition', transition);
+
+  assert.equal(args[0].get('name'), 'name test');
+  assert.equal(args[1], route.get('dirtyRelationships'));
+  assert.equal(args[2], route.get('dirtyMessage'));
   assert.equal(args[3], transition);
   assert.ok(!args[4]);
   assert.ok(result);
 });
 
 test('model is array and checkModelForDirty returns ABORT, checkModelForDirty called once', function(assert) {
-  route.dirtyModel = [Ember.Object.create(), Ember.Object.create()];
+  route.set('dirtyModel', [Ember.Object.create(), Ember.Object.create()]);
   var count = 0;
   route.checkModelForDirty = function() {
     count++;
@@ -130,7 +147,7 @@ test('model is array and checkModelForDirty returns ABORT, checkModelForDirty ca
 });
 
 test('model is array and checkModelForDirty returns ROLLBACK, checkModelForDirty called twice', function(assert) {
-  route.dirtyModel = [Ember.Object.create(), Ember.Object.create()];
+  route.set('dirtyModel', [Ember.Object.create(), Ember.Object.create()]);
   var count = 0;
   var args;
   route.checkModelForDirty = function() {
