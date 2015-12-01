@@ -191,3 +191,39 @@ test('model is dirty, relationship is not', function(assert) {
   assert.ok(wasRollbackCalledOnModel);
   assert.ok(!wasRollbackCalledOnRelationship);
 });
+
+test('model relationship of type array has dirty item', function(assert) {
+  var rollBackCount = 0;  
+  var dirtyItems = 0;
+  
+  var rollRelationshipBack = function() {
+    rollBackCount += 1;
+  };
+  
+  var createRollBackItem = function(isDirty) {
+    if (isDirty) dirtyItems += 1;
+
+    return Ember.Object.create({
+      isDirty: isDirty,
+      rollback: rollRelationshipBack
+    });
+  };
+
+  var children = [
+    createRollBackItem(false),
+    createRollBackItem(true),
+    createRollBackItem(true),
+    createRollBackItem(false),
+    createRollBackItem(true)
+  ];
+
+  var model = Ember.Object.create({
+    isDirty: false,
+    isSaving: false,
+    rollback: function() {},
+    test: children
+  });
+
+  checkModelForDirty(model, ['test'], null, null, true);
+  assert.equal(dirtyItems, rollBackCount);
+});
