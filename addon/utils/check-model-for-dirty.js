@@ -1,8 +1,17 @@
+import Ember from 'ember';
+
+const { isArray } = Ember;
+
 var ABORT = 0;
 var ROLLBACK = 1;
 var BUBBLE = 2;
 
 function addDirtyModel(dirtyModels, model) {
+  if (isArray(model)) {
+    model.filter(item => { return item.get('isDirty'); }).forEach(item => { dirtyModels.push(item); });
+    return;
+  }
+
   if (model.get('isDirty')) {
     dirtyModels.push(model);
   }
