@@ -7,14 +7,15 @@ var ROLLBACK = 1;
 var BUBBLE = 2;
 
 function addDirtyModel(dirtyModels, model) {
-  if (isArray(model)) {
-    model.filter(item => { return item.get('isDirty'); }).forEach(item => { dirtyModels.push(item); });
-    return;
+  if (!isArray(model)) {
+    model = [model];
   }
 
-  if (model.get('isDirty')) {
-    dirtyModels.push(model);
-  }
+  model.forEach(m => {
+    if (m.get('isDirty')) {
+      dirtyModels.push(m);
+    }
+  });
 }
 
 function getDirtyModels(model, dirtyRelationships) {
