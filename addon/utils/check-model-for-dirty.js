@@ -12,7 +12,10 @@ function addDirtyModel(dirtyModels, model) {
   }
 
   model.forEach(m => {
-    if (m.get('isDirty')) {
+    var hasDirtyAttributes = m.get('hasDirtyAttributes');
+
+    // backward compatibility
+    if ((hasDirtyAttributes === undefined && m.get('isDirty')) || hasDirtyAttributes) {
       dirtyModels.push(m);
     }
   });
@@ -36,7 +39,15 @@ export default function checkModelForDirty(model, dirtyRelationships, dirtyMessa
 
       return ABORT;
     }
-    dirtyModels.forEach(dirtyModel => dirtyModel.rollback());
+    dirtyModels.forEach(dirtyModel => {
+      // backward compatibility
+      if (dirtyModel.rollBackAttributes !== undefined) {
+        dirtyModel.rollBackAttributes();
+        return;
+      }
+
+      dirtyModel.rollback();
+    });
 
     return ROLLBACK;
   }
