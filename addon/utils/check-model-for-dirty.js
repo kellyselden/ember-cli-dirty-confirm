@@ -41,8 +41,8 @@ export default function checkModelForDirty(model, dirtyRelationships, dirtyMessa
     }
     dirtyModels.forEach(dirtyModel => {
       // backward compatibility
-      if (dirtyModel.rollBackAttributes !== undefined) {
-        dirtyModel.rollBackAttributes();
+      if (dirtyModel.rollbackAttributes !== undefined) {
+        dirtyModel.rollbackAttributes();
         return;
       }
 
