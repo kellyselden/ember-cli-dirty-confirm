@@ -36,6 +36,16 @@ test('isDirtyConfirmEnabled false, willTransition false, doesn\'t call checkMode
   assert.ok(!result);
 });
 
+test('toggleDirtyConfirm toggles isDirtyConfirmEnabled', function(assert) {
+  route.send('toggleDirtyConfirm');
+
+  assert.notOk(route.isDirtyConfirmEnabled);
+
+  route.send('toggleDirtyConfirm');
+
+  assert.ok(route.isDirtyConfirmEnabled);
+});
+
 test('willTransition calls checkModelForDirty', function(assert) {
   var args;
   route.checkModelForDirty = function() {
