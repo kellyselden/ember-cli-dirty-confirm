@@ -193,15 +193,17 @@ test('model is dirty, relationship is not', function(assert) {
 });
 
 test('model relationship of type array has dirty item', function(assert) {
-  var rollBackCount = 0;  
+  var rollBackCount = 0;
   var dirtyItems = 0;
-  
+
   var rollRelationshipBack = function() {
     rollBackCount += 1;
   };
-  
+
   var createRollBackItem = function(isDirty) {
-    if (isDirty) dirtyItems += 1;
+    if (isDirty) {
+      dirtyItems += 1;
+    }
 
     return Ember.Object.create({
       isDirty: isDirty,
