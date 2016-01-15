@@ -11,11 +11,11 @@ var transition = Ember.Object.create();
 
 module('DirtyConfirmRouteMixin', {
   beforeEach: function() {
-    route = Ember.Route.createWithMixins(DirtyConfirmRouteMixin, {
+    route = Ember.Route.extend(DirtyConfirmRouteMixin, {
       currentModel: Ember.Object.create(),
       dirtyRelationships: ['test'],
       dirtyMessage: 'this is a dirty message'
-    });
+    }).create();
   }
 });
 
@@ -166,9 +166,9 @@ test('model is array and checkModelForDirty returns ROLLBACK, checkModelForDirty
 test('uses default dirtyMessage', function(assert) {
   var expected = 'Leaving this page will lose your changes. Are you sure?';
 
-  route = Ember.Route.createWithMixins(DirtyConfirmRouteMixin, {
+  route = Ember.Route.extend(DirtyConfirmRouteMixin, {
     currentModel: Ember.Object.create()
-  });
+  }).create();
 
   assert.strictEqual(route.get('dirtyMessage'), expected);
 
