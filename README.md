@@ -19,3 +19,5 @@ export default Ember.Route.extend(DirtyConfirmRouteMixin, {
   isDirtyConfirmEnabled: false
 });
 ```
+
+It also exposes an action called `toggleDirtyConfirm`, so you can toggle off from outside the route.
