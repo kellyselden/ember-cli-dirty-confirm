@@ -54,6 +54,10 @@ export default Ember.Mixin.create({
   },
 
   actions: {
+    toggleDirtyConfirm() {
+      this.toggleProperty('isDirtyConfirmEnabled');
+    },
+
     willTransition(transition) {
       return this.checkDirtyConfirm(transition);
     }
