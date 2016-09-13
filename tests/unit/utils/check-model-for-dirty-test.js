@@ -1,16 +1,23 @@
 import Ember from 'ember';
 import checkModelForDirty from 'ember-cli-dirty-confirm/utils/check-model-for-dirty';
 import { module, test } from 'qunit';
+import sinon from 'sinon';
 
 var ABORT = 0;
 var ROLLBACK = 1;
 var BUBBLE = 2;
 
-var confirm = window.confirm;
+let sandbox;
+let confirmStub;
 
 module('checkModelForDirty', {
-  beforeEach: function() {
-    window.confirm = confirm;
+  beforeEach() {
+    sandbox = sinon.sandbox.create();
+
+    confirmStub = sandbox.stub(window, 'confirm');
+  },
+  afterEach() {
+    sandbox.restore();
   }
 });
 
@@ -74,9 +81,7 @@ test('confirm was confirmed, ROLLBACK', function(assert) {
     }
   });
   var continueRollingBack = false;
-  window.confirm = function() {
-    return true;
-  };
+  confirmStub.returns(true);
 
   var result = checkModelForDirty(model, [], null, null, continueRollingBack);
 
@@ -96,6 +101,7 @@ test('confirm was canceled, ABORT', function(assert) {
     }
   });
   var continueRollingBack = false;
+  confirmStub.returns(false);
 
   var result = checkModelForDirty(model, [], null, transition, continueRollingBack);
 
@@ -110,16 +116,12 @@ test('model is dirty, show dirtyMessage', function(assert) {
     rollback: function() { }
   });
   var continueRollingBack = false;
-  var message;
-  window.confirm = function(m) {
-    message = m;
-    return true;
-  };
+  confirmStub.returns(true);
   var dirtyMessage = 'this is a dirty message';
 
   checkModelForDirty(model, [], dirtyMessage, null, continueRollingBack);
 
-  assert.strictEqual(message, dirtyMessage);
+  assert.deepEqual(confirmStub.args, [[dirtyMessage]]);
 });
 
 test('relationship is dirty, model is not', function(assert) {
@@ -135,9 +137,7 @@ test('relationship is dirty, model is not', function(assert) {
       }
     })
   });
-  window.confirm = function() {
-    return true;
-  };
+  confirmStub.returns(true);
 
   checkModelForDirty(model, ['test']);
 
@@ -159,9 +159,7 @@ test('both model and relationship are dirty', function(assert) {
       }
     })
   });
-  window.confirm = function() {
-    return true;
-  };
+  confirmStub.returns(true);
 
   checkModelForDirty(model, ['test']);
 
@@ -182,9 +180,7 @@ test('model is dirty, relationship is not', function(assert) {
       }
     })
   });
-  window.confirm = function() {
-    return true;
-  };
+  confirmStub.returns(true);
 
   checkModelForDirty(model, ['test']);
 
