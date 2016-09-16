@@ -1,21 +1,40 @@
 import Ember from 'ember';
 import DirtyConfirmRouteMixin from 'ember-cli-dirty-confirm/mixins/dirty-confirm-route';
 import { module, test } from 'qunit';
+import sinon from 'sinon';
 
-var ABORT = 0;
-var ROLLBACK = 1;
-var BUBBLE = 2;
+const {
+  Route,
+  Object: emberObject,
+  A: newArray,
+  get, set
+} = Ember;
 
-var route;
-var transition = Ember.Object.create();
+const ABORT = 0;
+const ROLLBACK = 1;
+const BUBBLE = 2;
+
+let sandbox;
+let route;
+let checkModelForDirty;
+const transition = emberObject.create();
 
 module('DirtyConfirmRouteMixin', {
-  beforeEach: function() {
-    route = Ember.Route.extend(DirtyConfirmRouteMixin, {
-      currentModel: Ember.Object.create(),
+  beforeEach() {
+    sandbox = sinon.sandbox.create();
+
+    checkModelForDirty = sandbox.stub();
+
+    route = Route.extend(DirtyConfirmRouteMixin, {
+      currentModel: emberObject.create(),
       dirtyRelationships: ['test'],
-      dirtyMessage: 'this is a dirty message'
+      dirtyMessage: 'this is a dirty message',
+
+      checkModelForDirty
     }).create();
+  },
+  afterEach() {
+    sandbox.restore();
   }
 });
 
@@ -25,14 +44,10 @@ test('isDirtyConfirmEnabled enabled by default', function(assert) {
 
 test('isDirtyConfirmEnabled false, willTransition false, doesn\'t call checkModelForDirty', function(assert) {
   route.isDirtyConfirmEnabled = false;
-  var called;
-  route.checkModelForDirty = function() {
-    called = true;
-  };
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
-  assert.ok(!called);
+  assert.deepEqual(checkModelForDirty.args, []);
   assert.ok(!result);
 });
 
@@ -47,147 +62,118 @@ test('toggleDirtyConfirm toggles isDirtyConfirmEnabled', function(assert) {
 });
 
 test('willTransition calls checkModelForDirty', function(assert) {
-  var args;
-  route.checkModelForDirty = function() {
-    args = arguments;
-  };
+  let result = route.send('willTransition', transition);
 
-  var result = route.send('willTransition', transition);
-
-  assert.equal(args[0], route.currentModel);
-  assert.equal(args[1], route.dirtyRelationships);
-  assert.equal(args[2], route.dirtyMessage);
-  assert.equal(args[3], transition);
+  assert.deepEqual(checkModelForDirty.args, [[
+    route.currentModel,
+    route.dirtyRelationships,
+    route.dirtyMessage,
+    transition
+  ]]);
   assert.ok(!result);
 });
 
 test('checkModelForDirty returns ROLLBACK, willTransition returns true', function(assert) {
-  route.checkModelForDirty = function() {
-    return ROLLBACK;
-  };
+  checkModelForDirty.returns(ROLLBACK);
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
   assert.ok(result);
 });
 
 test('checkModelForDirty returns BUBBLE, willTransition returns true', function(assert) {
-  route.checkModelForDirty = function() {
-    return BUBBLE;
-  };
+  checkModelForDirty.returns(BUBBLE);
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
   assert.ok(result);
 });
 
 test('dirtyModel overrides currentModel', function(assert) {
-  var model;
-  route.set('dirtyModel', Ember.Object.create());
-  route.checkModelForDirty = function() {
-    model = arguments[0];
-  };
+  set(route, 'dirtyModel', emberObject.create());
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
+  let model = checkModelForDirty.args[0][0];
   assert.equal(model, route.dirtyModel);
   assert.notEqual(model, route.currentModel);
   assert.ok(!result);
 });
 
 test('model is empty array, willTransition returns true', function(assert) {
-  route.set('dirtyModel', []);
-  var called;
-  route.checkModelForDirty = function() {
-    called = true;
-  };
+  set(route, 'dirtyModel', []);
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
-  assert.ok(!called);
+  assert.deepEqual(checkModelForDirty.args, []);
   assert.ok(result);
 });
 
 test('model is non-empty native array, checkModelForDirty is called', function(assert) {
-  route.set('dirtyModel', [Ember.Object.create({ name: 'name test' })]);
-  var args;
-  route.checkModelForDirty = function() {
-    args = arguments;
-  };
+  let dirtyModel = emberObject.create({ name: 'name test' });
+  set(route, 'dirtyModel', [dirtyModel]);
 
-  var result = route.send('willTransition', transition);
+  let result = route.send('willTransition', transition);
 
-  assert.equal(args[0].get('name'), 'name test');
-  assert.equal(args[1], route.get('dirtyRelationships'));
-  assert.equal(args[2], route.get('dirtyMessage'));
-  assert.equal(args[3], transition);
-  assert.ok(!args[4]);
+  assert.deepEqual(checkModelForDirty.args, [[
+    dirtyModel,
+    get(route, 'dirtyRelationships'),
+    get(route, 'dirtyMessage'),
+    transition,
+    undefined
+  ]]);
   assert.ok(result);
 });
 
 test('model is non-empty ember array, checkModelForDirty is called', function(assert) {
-  route.set('dirtyModel', Ember.A([Ember.Object.create({ name: 'name test' })]));
-  var args;
-  route.checkModelForDirty = function() {
-    args = arguments;
-  };
+  let dirtyModel = emberObject.create({ name: 'name test' });
+  set(route, 'dirtyModel', newArray([dirtyModel]));
 
-  var result = route.send('willTransition', transition);
+  let result = route.send('willTransition', transition);
 
-  assert.equal(args[0].get('name'), 'name test');
-  assert.equal(args[1], route.get('dirtyRelationships'));
-  assert.equal(args[2], route.get('dirtyMessage'));
-  assert.equal(args[3], transition);
-  assert.ok(!args[4]);
+  assert.deepEqual(checkModelForDirty.args, [[
+    dirtyModel,
+    get(route, 'dirtyRelationships'),
+    get(route, 'dirtyMessage'),
+    transition,
+    undefined
+  ]]);
   assert.ok(result);
 });
 
 test('model is array and checkModelForDirty returns ABORT, checkModelForDirty called once', function(assert) {
-  route.set('dirtyModel', [Ember.Object.create(), Ember.Object.create()]);
-  var count = 0;
-  route.checkModelForDirty = function() {
-    count++;
-    return ABORT;
-  };
+  set(route, 'dirtyModel', [emberObject.create(), emberObject.create()]);
+  checkModelForDirty.returns(ABORT);
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
-  assert.strictEqual(count, 1);
+  assert.strictEqual(checkModelForDirty.callCount, 1);
   assert.ok(!result);
 });
 
 test('model is array and checkModelForDirty returns ROLLBACK, checkModelForDirty called twice', function(assert) {
-  route.set('dirtyModel', [Ember.Object.create(), Ember.Object.create()]);
-  var count = 0;
-  var args;
-  route.checkModelForDirty = function() {
-    count++;
-    args = arguments;
-    return ROLLBACK;
-  };
+  set(route, 'dirtyModel', [emberObject.create(), emberObject.create()]);
+  checkModelForDirty.returns(ROLLBACK);
 
-  var result = route.send('willTransition');
+  let result = route.send('willTransition');
 
-  assert.strictEqual(count, 2);
-  assert.ok(args[4]);
+  assert.strictEqual(checkModelForDirty.callCount, 2);
+  assert.strictEqual(checkModelForDirty.args[1][4], true);
   assert.ok(result);
 });
 
 test('uses default dirtyMessage', function(assert) {
-  var expected = 'Leaving this page will lose your changes. Are you sure?';
+  let expected = 'Leaving this page will lose your changes. Are you sure?';
 
-  route = Ember.Route.extend(DirtyConfirmRouteMixin, {
-    currentModel: Ember.Object.create()
+  route = Route.extend(DirtyConfirmRouteMixin, {
+    currentModel: emberObject.create(),
+
+    checkModelForDirty
   }).create();
 
-  assert.strictEqual(route.get('dirtyMessage'), expected);
-
-  var args;
-  route.checkModelForDirty = function() {
-    args = arguments;
-  };
+  assert.strictEqual(get(route, 'dirtyMessage'), expected);
 
   route.send('willTransition');
 
-  assert.strictEqual(args[2], expected);
+  assert.strictEqual(checkModelForDirty.args[0][2], expected);
 });
